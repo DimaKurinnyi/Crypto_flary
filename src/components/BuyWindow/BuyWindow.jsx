@@ -206,6 +206,9 @@ export const BuyWindow = () => {
 
     setCollected(Number(totalUsd.toFixed(2)));
 
+    // либо же здесь можно отправлять на бекенд количество токенов, которое купил пользователь
+    // POST {totalAmount, address: signer.address}
+
     setTokenHoldings(
       `${(boughtTokensEth + boughtTokensBsc).toFixed(2)}`,
       // (${boughtTokensEth.toFixed(
@@ -231,7 +234,6 @@ export const BuyWindow = () => {
 
     const balance = await provider.getBalance(signer.address);
     if (balance <= amount) {
-      // TODO: show popup
       setError(true);
 
       return;
@@ -239,14 +241,13 @@ export const BuyWindow = () => {
 
     const tx = await contract.buyTokensNative({ value: amount });
 
-    // TODO: disable front
     setLoading(true);
 
     await tx.wait();
     await updateTokenHoldings();
     setLoading(false);
 
-    // TODO: enable front
+    // здесь нужно отправлять на бекенд хеш транзакции и на бекенде записывать сколько куплено токенов
   };
 
   const buyTokensUsdt = async (network) => {
@@ -371,41 +372,41 @@ export const BuyWindow = () => {
           </div>
           {network === NETWORK_BSC
             ? dropToken && (
-                <div className={style.drop_network}>
-                  <div
-                    className={style.button_drop}
-                    onClick={() => handlerChangeToken(TOKEN_BNB, BNB)}>
-                    <img src={BNB} alt="" />
-                    <p>BNB</p>
-                  </div>
-                  <div
-                    className={style.button_drop}
-                    onClick={() => handlerChangeToken(TOKEN_USDT, USDT)}>
-                    <img src={USDT} alt="" />
-                    <p>USDT</p>
-                  </div>
+              <div className={style.drop_network}>
+                <div
+                  className={style.button_drop}
+                  onClick={() => handlerChangeToken(TOKEN_BNB, BNB)}>
+                  <img src={BNB} alt="" />
+                  <p>BNB</p>
                 </div>
-              )
+                <div
+                  className={style.button_drop}
+                  onClick={() => handlerChangeToken(TOKEN_USDT, USDT)}>
+                  <img src={USDT} alt="" />
+                  <p>USDT</p>
+                </div>
+              </div>
+            )
             : null}
           <img src={Arrow} alt="" />
 
           {network === NETWORK_ETHEREUM
             ? dropToken && (
-                <div className={style.drop_network}>
-                  <div
-                    className={style.button_drop}
-                    onClick={() => handlerChangeToken(TOKEN_ETHEREUM, ETH)}>
-                    <img src={ETH} alt="" />
-                    <p>Ethereum</p>
-                  </div>
-                  <div
-                    className={style.button_drop}
-                    onClick={() => handlerChangeToken(TOKEN_USDT, USDT)}>
-                    <img src={USDT} alt="" />
-                    <p>USDT</p>
-                  </div>
+              <div className={style.drop_network}>
+                <div
+                  className={style.button_drop}
+                  onClick={() => handlerChangeToken(TOKEN_ETHEREUM, ETH)}>
+                  <img src={ETH} alt="" />
+                  <p>Ethereum</p>
                 </div>
-              )
+                <div
+                  className={style.button_drop}
+                  onClick={() => handlerChangeToken(TOKEN_USDT, USDT)}>
+                  <img src={USDT} alt="" />
+                  <p>USDT</p>
+                </div>
+              </div>
+            )
             : null}
         </div>
       </div>
@@ -464,7 +465,7 @@ export const BuyWindow = () => {
         </div>
       </div>
       {error && <Error setError={setError} setTokensFromAmount={setTokensFromAmount} setTokensToAmount={setTokensToAmount} />}
-      
+
       {loading ? (
         <Loader />
       ) : (
@@ -473,7 +474,7 @@ export const BuyWindow = () => {
           onClick={() => buyCoins()}
           style={
             error || isDisconnected
-              ? { opacity: '0.3', pointerEvents: 'none', cursor: 'not-allowed',marginBottom:'30px' }
+              ? { opacity: '0.3', pointerEvents: 'none', cursor: 'not-allowed', marginBottom: '30px' }
               : { opacity: '1' }
           }>
           Buy FLFI
@@ -481,11 +482,12 @@ export const BuyWindow = () => {
       )}
       {isDisconnected && (
         <ConnectButton
-        style = {{marginBottom:'20px'}}
+          style={{ marginBottom: '20px' }}
           accountStatus="address"
           chainStatus="none"
           showBalance={false}
           label="Connect Wallet"
+        // onClick= отправлять на бекенд адрес кошелька и реферальный код
         />
       )}
     </div>
